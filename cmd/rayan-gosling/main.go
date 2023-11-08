@@ -6,10 +6,6 @@ import (
 	"Rayan-Gosling/pkg/client"
 	"context"
 	"log"
-	"os"
-
-	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
-	"github.com/joho/godotenv"
 )
 
 func main() {
@@ -21,44 +17,12 @@ func main() {
 	}
 	repository := rayan.NewRepository(postrgeSQLClient)
 
-	if err := repository.InsertTable(context.TODO(), postrgeSQLClient); err != nil {
+	var img = &rayan.Image1{
+		ImageID: make([]int, 6),
+		ImageData: make([][]byte, 6),
+	}
+
+	if err := repository.InsertTable(context.TODO(), postrgeSQLClient, img); err != nil {
 		log.Fatal(err)
-	}
-
-	TgBot()
-
-}
-
-func TgBot() {
-	godotenv.Load()
-	token := os.Getenv("TOKEN")
-	bot, err := tgbotapi.NewBotAPI(token)
-	if err != nil {
-		log.Panic(err)
-	}
-
-	bot.Debug = true
-
-	log.Printf("Authorized on account %s", bot.Self.UserName)
-
-	u := tgbotapi.UpdateConfig{
-		Timeout: 60,
-	}
-
-	updates := bot.GetUpdatesChan(u)
-
-	for update := range updates {
-		defer func() {
-			if panicValue := recover(); panicValue != nil {
-				log.Printf("recovered from panic: %v", panicValue)
-			}
-		}()
-
-		if update.CallbackQuery != nil {
-			msg := tgbotapi.NewMessage(update.CallbackQuery.Message.Chat.ID, "Data: "+update.CallbackQuery.Data)
-			bot.Send(msg)
-			return
-		}
-
 	}
 }
