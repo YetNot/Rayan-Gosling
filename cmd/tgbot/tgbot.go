@@ -66,7 +66,7 @@ func main() {
 		if update.Message != nil { // If we got a message
 
 			if update.Message.Command() == "go_meme" {
-					commander.Meme(update.Message, img)
+					go commander.Meme(update.Message, img)
 			}
 		}
 	}
